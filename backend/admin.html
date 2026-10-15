@@ -1,0 +1,684 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilal Digital | Admin Panel</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        header {
+            background: #0f172a;
+            color: white;
+            padding: 22px 30px;
+        }
+
+        header h1 {
+            font-size: 25px;
+        }
+
+        header p {
+            color: #cbd5e1;
+            margin-top: 7px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #0000000a;
+        }
+
+        .card h3 {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .card p {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .messages {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #0000000a;
+        }
+
+        .messages h2 {
+            margin-bottom: 20px;
+        }
+
+        #status {
+            color: #475569;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            border: 1px solid #e2e8f0;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .message h3 {
+            margin-bottom: 8px;
+        }
+
+        .message p {
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .date {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <section id="loginSection" style="max-width: 400px; margin: 80px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 20px #00000015;">
+        <h2 style="margin-bottom: 10px;">Admin Login</h2>
+        <p style="margin-bottom: 20px; color: #64748b;">Sign in to access your dashboard.</p>
+
+        <form id="loginForm">
+            <label for="adminUsername">Username</label>
+            <input id="adminUsername" type="text" required autocomplete="username"
+                style="display: block; width: 100%; padding: 12px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 6px;">
+
+            <label for="adminPassword">Password</label>
+            <input id="adminPassword" type="password" required autocomplete="current-password"
+                style="display: block; width: 100%; padding: 12px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 6px;">
+
+            <button type="submit" style="margin-top: 8px;">Login</button>
+            <p id="loginStatus" role="status"></p>
+        </form>
+    </section>
+
+    <div id="dashboardSection" style="display: none;">
+
+    <header>
+        <h1>Bilal Digital</h1>
+        <p>Admin Dashboard</p>
+
+        <button onclick="logoutAdmin()" style="margin-top: 15px;">
+    Logout
+</button>
+    </header>
+    <main class="container">
+
+        <section class="stats">
+            <div class="card">
+                <h3>Total Messages</h3>
+                <p id="totalMessages">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Panel Status</h3>
+                <p style="font-size: 22px;">Active</p>
+            </div>
+        </section>
+
+        <section class="messages">
+            <h2>Contact Form Messages</h2>
+
+            
+
+    placeholder="Search by name or email..."
+    style="width: 100%; max-width: 400px; padding: 12px; margin: 15px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box;"
+>
+
+
+            <button onclick="loadMessages()">
+                Refresh Messages
+            </button>
+
+            
+<button onclick="exportMessagesToCSV()">
+    Export to CSV
+</button>
+
+
+<button onclick="downloadDatabaseBackup()">
+    Download Database Backup
+</button>
+
+
+            
+            <p id="status">Loading messages...</p>
+
+          
+<p id="searchCount"></p>
+
+
+<label for="dateFilter">Filter by Date:</label>
+
+<input
+    type="date"
+    id="dateFilter"
+    style="padding: 10px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px;"
+>
+
+<button type="button" id="clearDateFilter">
+    Clear Date
+</button>
+
+
+<br>
+<label for="sortMessages">Sort Messages:</label>
+<select
+    id="sortMessages"
+    style="padding: 10px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px;"
+>
+    <option value="newest">Newest First</option>
+    <option value="oldest">Oldest First</option>
+</select>
+<br>
+
+
+<input
+    type="text"
+    id="searchMessages"
+    placeholder="Search by name or email..."
+    style="width: 100%; max-width: 400px; padding: 12px; margin: 15px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box;"
+>
+
+<div id="messageList"></div>
+
+        </section>
+
+    </main>
+
+    </div>
+
+    <script>
+        async function loadMessages() {
+            const status = document.getElementById("status");
+            const messageList = document.getElementById("messageList");
+            const totalMessages = document.getElementById("totalMessages");
+            const searchCount = document.getElementById("searchCount");
+
+            status.textContent = "Loading messages...";
+            messageList.replaceChildren();
+
+            try {
+                const response = await fetch("http://localhost:3000/api/contacts", {
+    credentials: "include"
+});
+
+                if (!response.ok) {
+                    throw new Error("Could not load messages");
+                }
+
+                const messages = await response.json();
+
+                totalMessages.textContent = messages.length;
+                searchCount.textContent = "Showing all " + messages.length + " messages.";
+
+                if (messages.length === 0) {
+                    status.textContent = "No messages received yet.";
+                    return;
+                }
+
+                status.textContent = "Messages loaded successfully.";
+
+                messages.forEach(function (item) {
+                    const box = document.createElement("div");
+                    box.className = "message";
+                    
+                    box.dataset.searchText = (
+    item.name + " " + item.email
+).toLowerCase();
+
+box.dataset.messageDate = item.created_at.slice(0, 10);
+                    const name = document.createElement("h3");
+                    name.textContent = item.name;
+
+                    const email = document.createElement("p");
+                    email.textContent = "Email: " + item.email;
+
+                    
+const replyButton = document.createElement("button");
+replyButton.textContent = "Reply by Email";
+replyButton.style.backgroundColor = "#7c3aed";
+replyButton.style.color = "white";
+replyButton.style.padding = "8px 12px";
+replyButton.style.border = "none";
+replyButton.style.borderRadius = "6px";
+replyButton.style.cursor = "pointer";
+
+replyButton.addEventListener("click", function () {
+    const subject = encodeURIComponent("Regarding Your Message - Bilal Digital");
+    window.location.href =
+        "mailto:" + encodeURIComponent(item.email) +
+        "?subject=" + subject;
+});
+
+
+                    
+const copyEmailButton = document.createElement("button");
+copyEmailButton.textContent = "Copy Email";
+
+const viewDetailsButton = document.createElement("button");
+viewDetailsButton.textContent = "View Details";
+viewDetailsButton.style.backgroundColor = "#0f766e";
+viewDetailsButton.style.color = "white";
+viewDetailsButton.style.padding = "8px 12px";
+viewDetailsButton.style.border = "none";
+viewDetailsButton.style.borderRadius = "6px";
+viewDetailsButton.style.cursor = "pointer";
+
+viewDetailsButton.addEventListener("click", function () {
+    alert(
+        "Customer: " + item.name +
+        "\nEmail: " + item.email +
+        "\nReceived: " + item.created_at +
+        "\n\nMessage:\n" + item.message
+    );
+});
+
+copyEmailButton.style.backgroundColor = "#2563eb";
+copyEmailButton.style.color = "white";
+copyEmailButton.style.padding = "8px 12px";
+copyEmailButton.style.border = "none";
+copyEmailButton.style.borderRadius = "6px";
+copyEmailButton.style.cursor = "pointer";
+
+copyEmailButton.addEventListener("click", async function () {
+    try {
+        await navigator.clipboard.writeText(item.email);
+        alert("Email copied successfully!");
+    } catch (error) {
+        alert("Email copy nahi ho saka. Email manually copy karo: " + item.email);
+    }
+});
+
+
+                    const message = document.createElement("p");
+                    message.textContent = "Message: " + item.message;
+
+                    const date = document.createElement("p");
+                    date.className = "date";
+                    date.textContent = "Received: " + item.created_at;
+
+                    
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete Message";
+deleteButton.style.backgroundColor = "#dc2626";
+deleteButton.style.color = "white";
+deleteButton.style.padding = "10px 14px";
+deleteButton.style.border = "none";
+deleteButton.style.borderRadius = "6px";
+deleteButton.style.cursor = "pointer";
+
+deleteButton.addEventListener("click", async function () {
+    const confirmed = confirm("Are you sure you want to delete this message?");
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "http://localhost:3000/api/contacts/" + item.id,
+            {
+                method: "DELETE",
+                credentials: "include"
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.message || "Could not delete message.");
+            return;
+        }
+
+        alert("Message deleted successfully!");
+        loadMessages();
+
+    } catch (error) {
+        alert("Could not connect to the backend.");
+    }
+});
+
+
+                    box.append(
+    name,
+    email,
+    replyButton,
+    copyEmailButton,
+    viewDetailsButton,
+    message,
+    date,
+    deleteButton
+);
+                    messageList.appendChild(box);
+                });
+
+            } catch (error) {
+                totalMessages.textContent = "—";
+                status.textContent =
+                    "Unable to connect. Please check whether the backend server is running.";
+            }
+        }
+
+
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const status = document.getElementById("loginStatus");
+            status.textContent = "Checking login...";
+
+            const username = document.getElementById("adminUsername").value;
+            const password = document.getElementById("adminPassword").value;
+
+            try {
+                const response = await fetch("http://localhost:3000/api/admin/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    status.textContent = result.message || "Login failed.";
+                    return;
+                }
+
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("dashboardSection").style.display = "block";
+
+                document.getElementById("adminPassword").value = "";
+                loadMessages();
+
+            } catch (error) {
+                status.textContent = "Cannot connect to the backend. Check that the server is running.";
+            }
+        });
+
+
+async function checkAdminStatus() {
+    try {
+        const response = await fetch("http://localhost:3000/api/admin/status", {
+            credentials: "include"
+        });
+
+        const result = await response.json();
+
+        if (result.loggedIn) {
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("dashboardSection").style.display = "block";
+            loadMessages();
+        } else {
+            document.getElementById("loginSection").style.display = "block";
+            document.getElementById("dashboardSection").style.display = "none";
+        }
+    } catch (error) {
+        document.getElementById("loginStatus").textContent =
+            "Cannot connect to the backend. Check whether the server is running.";
+    }
+}
+
+checkAdminStatus();
+
+
+document.getElementById("searchMessages").addEventListener("input", function () {
+    const searchText = this.value.toLowerCase().trim();
+    const messageBoxes = document.querySelectorAll("#messageList .message");
+    let visibleCount = 0;
+
+    messageBoxes.forEach(function (box) {
+        const matches = box.dataset.searchText.includes(searchText);
+        box.style.display = matches ? "" : "none";
+
+        if (matches) {
+            visibleCount++;
+        }
+    });
+
+    const status = document.getElementById("status");
+
+   
+if (searchText === "") {
+    status.textContent = "Messages loaded successfully.";
+
+    document.getElementById("searchCount").textContent =
+        "Showing all " +
+        document.getElementById("totalMessages").textContent +
+        " messages.";
+} else {
+    status.textContent = visibleCount + " matching message(s) found.";
+
+    document.getElementById("searchCount").textContent =
+        "Showing " + visibleCount + " of " +
+        document.getElementById("totalMessages").textContent +
+        " messages.";
+}
+
+});
+
+
+function applyMessageFilters() {
+    const searchText = document.getElementById("searchMessages").value.toLowerCase().trim();
+    const selectedDate = document.getElementById("dateFilter").value;
+    const messageBoxes = document.querySelectorAll("#messageList .message");
+    let visibleCount = 0;
+
+    messageBoxes.forEach(function (box) {
+        const matchesSearch = box.dataset.searchText.includes(searchText);
+        const matchesDate = !selectedDate || box.dataset.messageDate === selectedDate;
+        const matches = matchesSearch && matchesDate;
+
+        box.style.display = matches ? "" : "none";
+
+        if (matches) visibleCount++;
+    });
+
+    document.getElementById("status").textContent =
+        visibleCount + " matching message(s) found.";
+
+    document.getElementById("searchCount").textContent =
+        "Showing " + visibleCount + " of " +
+        document.getElementById("totalMessages").textContent +
+        " messages.";
+}
+
+document.getElementById("searchMessages").addEventListener("input", applyMessageFilters);
+
+
+document.getElementById("sortMessages").addEventListener("change", function () {
+    const messageList = document.getElementById("messageList");
+    const messages = Array.from(messageList.querySelectorAll(".message"));
+
+    messages.sort(function (a, b) {
+        const dateA = a.dataset.messageDate || "";
+        const dateB = b.dataset.messageDate || "";
+
+        if (this.value === "oldest") {
+            return dateA.localeCompare(dateB);
+        }
+
+        return dateB.localeCompare(dateA);
+    }.bind(this));
+
+    messages.forEach(function (message) {
+        messageList.appendChild(message);
+    });
+    applyMessageFilters();
+});
+
+
+document.getElementById("dateFilter").addEventListener("change", applyMessageFilters);
+
+document.getElementById("clearDateFilter").addEventListener("click", function () {
+    document.getElementById("dateFilter").value = "";
+    applyMessageFilters();
+});
+
+
+function exportMessagesToCSV() {
+    const messages = Array.from(
+        document.querySelectorAll("#messageList .message")
+    );
+
+    if (messages.length === 0) {
+        alert("Export karne ke liye koi messages nahi hain.");
+        return;
+    }
+
+    const rows = [["Name", "Email", "Message", "Received"]];
+
+    messages.forEach(function (box) {
+        const name = box.querySelector("h3")?.textContent || "";
+
+        const paragraphs = Array.from(box.querySelectorAll("p"));
+
+        const email = paragraphs.find(p =>
+            p.textContent.startsWith("Email: ")
+        )?.textContent.replace("Email: ", "") || "";
+
+        const message = paragraphs.find(p =>
+            p.textContent.startsWith("Message: ")
+        )?.textContent.replace("Message: ", "") || "";
+
+        const received = paragraphs.find(p =>
+            p.textContent.startsWith("Received: ")
+        )?.textContent.replace("Received: ", "") || "";
+
+        rows.push([name, email, message, received]);
+    });
+
+    const csv = rows.map(row =>
+        row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(",")
+    ).join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "bilal-digital-messages.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+
+async function downloadDatabaseBackup() {
+    try {
+        const response = await fetch(
+            "http://localhost:3000/api/admin/backup",
+            { credentials: "include" }
+        );
+
+        if (!response.ok) {
+            alert("Backup download nahi hua. Admin login check karo.");
+            return;
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "bilal-digital-backup.db";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+        alert("Database backup download ho gaya!");
+    } catch (error) {
+        alert("Backend connection check karo.");
+    }
+}
+
+        
+async function logoutAdmin() {
+    try {
+        const response = await fetch("http://localhost:3000/api/admin/logout", {
+            method: "POST",
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            alert("Logout failed. Please try again.");
+            return;
+        }
+
+        document.getElementById("dashboardSection").style.display = "none";
+        document.getElementById("loginSection").style.display = "block";
+        document.getElementById("loginStatus").textContent = "You have logged out.";
+        document.getElementById("messageList").replaceChildren();
+        document.getElementById("totalMessages").textContent = "0";
+
+    } catch (error) {
+        alert("Cannot connect to the backend.");
+    }
+}
+
+
+
+        
+    </script>
+
+</body>
+</html>
